@@ -10,7 +10,7 @@ Mitigation methods
 Currently code supports CIFAR10 + MNIST mix dataset. Reweighting involves sampling during training from a bernoulli distribution that assigns equal probability to
 $[0,t_{max}]$ and $[t_{max},T]$ where $t_{max}$ is the maximum time possessing high frequency content (empirically chosen) we find that both $50,100$ work. For spectrum loss if the sampled time has high frequency information we calculate the loss between the spectrum of 
 
-![equation](https://github.com/rsn870/spectral_ddpm/blob/main/images/codecog.png)  
+![equation](https://github.com/rsn870/spectral_ddpm/blob/main/images/code_a.png)  
 
 
 
