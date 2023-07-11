@@ -139,7 +139,7 @@ class Skewed_GaussianDiffusionTrainer_Spectrum(nn.Module):
         if seed == 1:
             return (torch.randint(self.maxf,self.T, size=size, device=device),1)
         else:
-            return (torch.randint(0,self.maxf, size=size, device=device),2)
+            return (torch.randint(1,self.maxf, size=size, device=device),2)
 
 
     def forward(self, x_0):
@@ -155,10 +155,11 @@ class Skewed_GaussianDiffusionTrainer_Spectrum(nn.Module):
         
         loss = F.mse_loss(self.model(x_t, t), noise, reduction='none')
         if idx ==2:
+            t_p = torch.sub(t,torch.ones_like(t)).to(t.device)
             x_t_prev =  (
-            extract(self.sqrt_alphas_bar, t-1, x_0.shape) * x_0 +
-            extract(self.sqrt_one_minus_alphas_bar, t-1, x_0.shape) * noise)
-            x_t_pred = x_t + (extract(self.sqrt_one_minus_alphas_bar, t-1, x_0.shape) -extract(self.sqrt_one_minus_alphas_bar, t, x_0.shape))*self.model(x_t, t)
+            extract(self.sqrt_alphas_bar, t_p, x_0.shape) * x_0 +
+            extract(self.sqrt_one_minus_alphas_bar, t_p, x_0.shape) * noise)
+            x_t_pred = x_t + (extract(self.sqrt_one_minus_alphas_bar, t_p, x_0.shape) -extract(self.sqrt_one_minus_alphas_bar, t, x_0.shape))*self.model(x_t, t)
             loss_spect = spectmse(x_t_pred,x_t_prev)
             loss = loss + loss_spect
         
