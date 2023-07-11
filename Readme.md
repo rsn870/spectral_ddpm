@@ -1,4 +1,21 @@
-# Denoising Diffusion Probabilistic Models
+# Spectral Bias Experiments with DDPM
+
+We base our codebase on the codebase on a pre-existing one given below. Currently codes are provided for.
+
+Mitigation methods 
+- [x] Reweighting temporal freqeuncy
+- [x] MSE Loss in the frequency domain with reweighting.
+
+
+Currently code supports CIFAR10 + MNIST mix dataset. Reweighting involves sampling during training from a bernoulli distribution that assigns equal probability to
+$[0,t_{max}]$ and $[t_{max},T]$ where $t_{max}$ is the maximum time possessing high frequency content (empirically chosen) we find that both $50,100$ work. For spectrum loss if the sampled time has high frequency information we calculate the loss between the spectrum of $x_{t-1}, x_{t} + (\sqrt{1-\overline{\alpha}_{t-1}}}-\sqrt{1-\overline{\alpha}_{t-1}}})f_{\theta}(x_{t-1},t-1)$  
+
+
+
+
+
+---------------------------------------------------------
+## Denoising Diffusion Probabilistic Models
 
 Unofficial PyTorch implementation of Denoising Diffusion Probabilistic Models [1].
 
