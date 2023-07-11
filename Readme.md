@@ -12,7 +12,7 @@ $[0,t_{max}]$ and $[t_{max},T]$ where $t_{max}$ is the maximum time possessing h
 
 $$x_{t-1}, x_{t}+\eta_{t}  f_{\theta}(x_{t-1},t-1)$$
 
-where $\eta_{t} = (\sqrt{1-\overline{\alpha}_{t-1}}-\sqrt{1-\overline{\alpha}_{t-1}})$
+where $\eta_{t} = \sqrt{1-\overline{\alpha}_{t-1}}- \sqrt{1-\overline{\alpha}_{t}}$
 
 
 ---------------------------------------------------------
