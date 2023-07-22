@@ -13,7 +13,7 @@ $[0,t_{max}]$ and $[t_{max},T]$ where $t_{max}$ is the maximum time possessing h
 
 ![equation](https://github.com/rsn870/spectral_ddpm/blob/main/images/code_a.png)
 
-For a fuller theoretical analysis please refer to ![this overleaf link here](https://www.overleaf.com/read/sswxdhmyptwb)
+For a fuller theoretical analysis please refer to [this overleaf link here](https://www.overleaf.com/read/sswxdhmyptwb)
 
 
 
