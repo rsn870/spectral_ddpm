@@ -1,16 +1,19 @@
 # Spectral Bias Experiments with DDPM
 
-We base our codebase on the codebase on a pre-existing one given below. Currently codes are provided for.
+We base our codebase on the codebase on a pre-existing one given below. The codbase here supports CIFAR10, MNIST but can be modified easily for any standard torchvision datasets that are downloadable. For intrinsically grayscale datasets eg FashionMNIST please refer to the MNIST preprocessing transform in any of the codes. Currently codes are provided for.
 
 Mitigation methods 
 - [x] Reweighting temporal freqeuncy
 - [x] MSE Loss in the frequency domain with reweighting.
+- [ ] Strong MSE Loss based on the fast sampling trick
 
 
-Currently code supports CIFAR10 + MNIST mix dataset. Reweighting involves sampling during training from a bernoulli distribution that assigns equal probability to
+Reweighting involves sampling during training from a bernoulli distribution that assigns equal probability to
 $[0,t_{max}]$ and $[t_{max},T]$ where $t_{max}$ is the maximum time possessing high frequency content (empirically chosen) we find that both $50,100$ work. For spectrum loss if the sampled time has high frequency information we calculate the loss between the spectrum of 
 
-![equation](https://github.com/rsn870/spectral_ddpm/blob/main/images/code_a.png)  
+![equation](https://github.com/rsn870/spectral_ddpm/blob/main/images/code_a.png)
+
+For a fuller theoretical analysis please refer to ![this overleaf link here](https://www.overleaf.com/read/sswxdhmyptwb)
 
 
 
