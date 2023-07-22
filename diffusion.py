@@ -7,6 +7,8 @@ from spectrum import get_spectrum
 from torch import Tensor
 
 
+
+
 class MSESpectrumLoss(torch.nn.MSELoss):
     def __init__(self, *args, **kwargs):
         super(MSESpectrumLoss, self).__init__(*args, **kwargs)
@@ -88,7 +90,10 @@ class Skewed_GaussianDiffusionTrainer(nn.Module):
 
         lst = [1,2]
 
-        seed = random.choice(lst)
+        
+        weights = [0.5,0.5] #Set value of probability
+
+        seed = random.choices(lst,weights,k=1)[0]
 
         if seed == 1:
             return torch.randint(self.maxf,self.T, size=size, device=device)
@@ -134,7 +139,10 @@ class Skewed_GaussianDiffusionTrainer_Spectrum(nn.Module):
 
         lst = [1,2]
 
-        seed = random.choice(lst)
+        
+        weights = [0.5,0.5] #Set value of probability
+
+        seed = random.choices(lst,weights,k=1)[0]
 
         if seed == 1:
             return (torch.randint(self.maxf,self.T, size=size, device=device),1)
@@ -164,6 +172,9 @@ class Skewed_GaussianDiffusionTrainer_Spectrum(nn.Module):
             loss = loss + loss_spect
         
         return loss
+    
+
+
 
 
 class GaussianDiffusionSampler(nn.Module):
