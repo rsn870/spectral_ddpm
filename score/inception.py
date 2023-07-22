@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torchvision import models
+import torchvision
 
 try:
     from torchvision.models.utils import load_state_dict_from_url
@@ -10,7 +10,7 @@ except ImportError:
 
 # Inception weights ported to Pytorch from
 # http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz
-FID_WEIGHTS_URL = 'https://github.com/mseitzer/pytorch-fid/releases/download/fid_weights/pt_inception-2015-12-05-6726825d.pth'
+FID_WEIGHTS_URL = 'https://github.com/mseitzer/pytorch-fid/releases/download/fid_weights/pt_inception-2015-12-05-6726825d.pth'  # noqa: E501
 
 
 class InceptionV3(nn.Module):
@@ -22,15 +22,14 @@ class InceptionV3(nn.Module):
 
     # Maps feature dimensionality to their output blocks indices
     BLOCK_INDEX_BY_DIM = {
-        64: 0,      # First max pooling features
-        192: 1,     # Second max pooling featurs
-        768: 2,     # Pre-aux classifier features
-        2048: 3,    # Final average pooling features
-        'prob': 4,  # softmax layer
+        64: 0,   # First max pooling features
+        192: 1,  # Second max pooling featurs
+        768: 2,  # Pre-aux classifier features
+        2048: 3  # Final average pooling features
     }
 
     def __init__(self,
-                 output_blocks=[DEFAULT_BLOCK_INDEX],
+                 output_blocks=(DEFAULT_BLOCK_INDEX,),
                  resize_input=True,
                  normalize_input=True,
                  requires_grad=False,
@@ -72,15 +71,15 @@ class InceptionV3(nn.Module):
         self.output_blocks = sorted(output_blocks)
         self.last_needed_block = max(output_blocks)
 
-        # assert self.last_needed_block <= 3, \
-        #     'Last possible output block index is 3'
+        assert self.last_needed_block <= 3, \
+            'Last possible output block index is 3'
 
         self.blocks = nn.ModuleList()
 
         if use_fid_inception:
             inception = fid_inception_v3()
         else:
-            inception = models.inception_v3(pretrained=True)
+            inception = _inception_v3(weights='DEFAULT')
 
         # Block 0: input to maxpool1
         block0 = [
@@ -124,10 +123,6 @@ class InceptionV3(nn.Module):
             ]
             self.blocks.append(nn.Sequential(*block3))
 
-        if self.last_needed_block >= 4:
-            self.fc = inception.fc
-            self.fc.bias = None
-
         for param in self.parameters():
             param.requires_grad = requires_grad
 
@@ -165,16 +160,38 @@ class InceptionV3(nn.Module):
             if idx == self.last_needed_block:
                 break
 
-        if self.last_needed_block >= 4:
-            x = F.dropout(x, training=self.training)
-            # N x 2048 x 1 x 1
-            x = torch.flatten(x, 1)
-            # N x 2048
-            x = self.fc(x)
-            x = F.softmax(x, dim=1)
-            outp.append(x)
-
         return outp
+
+
+def _inception_v3(*args, **kwargs):
+    """Wraps `torchvision.models.inception_v3`"""
+    try:
+        version = tuple(map(int, torchvision.__version__.split('.')[:2]))
+    except ValueError:
+        # Just a caution against weird version strings
+        version = (0,)
+
+    # Skips default weight inititialization if supported by torchvision
+    # version. See https://github.com/mseitzer/pytorch-fid/issues/28.
+    if version >= (0, 6):
+        kwargs['init_weights'] = False
+
+    # Backwards compatibility: `weights` argument was handled by `pretrained`
+    # argument prior to version 0.13.
+    if version < (0, 13) and 'weights' in kwargs:
+        if kwargs['weights'] == 'DEFAULT':
+            kwargs['pretrained'] = True
+        elif kwargs['weights'] is None:
+            kwargs['pretrained'] = False
+        else:
+            raise ValueError(
+                'weights=={} not supported in torchvision {}'.format(
+                    kwargs['weights'], torchvision.__version__
+                )
+            )
+        del kwargs['weights']
+
+    return torchvision.models.inception_v3(*args, **kwargs)
 
 
 def fid_inception_v3():
@@ -186,9 +203,9 @@ def fid_inception_v3():
     This method first constructs torchvision's Inception and then patches the
     necessary parts that are different in the FID Inception model.
     """
-    inception = models.inception_v3(num_classes=1008,
-                                    aux_logits=False,
-                                    pretrained=False)
+    inception = _inception_v3(num_classes=1008,
+                              aux_logits=False,
+                              weights=None)
     inception.Mixed_5b = FIDInceptionA(192, pool_features=32)
     inception.Mixed_5c = FIDInceptionA(256, pool_features=64)
     inception.Mixed_5d = FIDInceptionA(288, pool_features=64)
@@ -204,7 +221,7 @@ def fid_inception_v3():
     return inception
 
 
-class FIDInceptionA(models.inception.InceptionA):
+class FIDInceptionA(torchvision.models.inception.InceptionA):
     """InceptionA block patched for FID computation"""
     def __init__(self, in_channels, pool_features):
         super(FIDInceptionA, self).__init__(in_channels, pool_features)
@@ -229,7 +246,7 @@ class FIDInceptionA(models.inception.InceptionA):
         return torch.cat(outputs, 1)
 
 
-class FIDInceptionC(models.inception.InceptionC):
+class FIDInceptionC(torchvision.models.inception.InceptionC):
     """InceptionC block patched for FID computation"""
     def __init__(self, in_channels, channels_7x7):
         super(FIDInceptionC, self).__init__(in_channels, channels_7x7)
@@ -257,7 +274,7 @@ class FIDInceptionC(models.inception.InceptionC):
         return torch.cat(outputs, 1)
 
 
-class FIDInceptionE_1(models.inception.InceptionE):
+class FIDInceptionE_1(torchvision.models.inception.InceptionE):
     """First InceptionE block patched for FID computation"""
     def __init__(self, in_channels):
         super(FIDInceptionE_1, self).__init__(in_channels)
@@ -290,7 +307,7 @@ class FIDInceptionE_1(models.inception.InceptionE):
         return torch.cat(outputs, 1)
 
 
-class FIDInceptionE_2(models.inception.InceptionE):
+class FIDInceptionE_2(torchvision.models.inception.InceptionE):
     """Second InceptionE block patched for FID computation"""
     def __init__(self, in_channels):
         super(FIDInceptionE_2, self).__init__(in_channels)
