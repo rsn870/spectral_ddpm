@@ -13,6 +13,8 @@ $[0,t_{max}]$ and $[t_{max},T]$ where $t_{max}$ is the maximum time possessing h
 
 ![equation](https://github.com/rsn870/spectral_ddpm/blob/main/images/code_a.png)
 
+All mitigation codes will be present in diffusion.py please refer to it for more details. For a new experiment create a new main file after adding a new trainer class in diffusion.py
+
 For a fuller theoretical analysis please refer to [this overleaf link here](https://www.overleaf.com/read/sswxdhmyptwb)
 
 
