@@ -5,6 +5,7 @@ We base our codebase on the codebase on a pre-existing one given below. The codb
 Mitigation methods 
 - [x] Reweighting temporal freqeuncy
 - [x] MSE Loss in the frequency domain with reweighting.
+- [ ] MSE Loss in the frequency domain with n-step sampling + reweighting
 - [ ] Strong MSE Loss based on the fast sampling trick
 
 
