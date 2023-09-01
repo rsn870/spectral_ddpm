@@ -67,7 +67,7 @@ class GaussianDiffusionTrainer(nn.Module):
     
 
 class Skewed_GaussianDiffusionTrainer(nn.Module):
-    def __init__(self, model, beta_1, beta_T, T,maxf=100):
+    def __init__(self, model, beta_1, beta_T, T,maxf=100,prob=0.5):
         super().__init__()
 
         self.model = model
@@ -85,17 +85,21 @@ class Skewed_GaussianDiffusionTrainer(nn.Module):
             'sqrt_one_minus_alphas_bar', torch.sqrt(1. - alphas_bar))
         
         self.maxf = maxf
+
+        self.prob = prob
         
     def sample(self,size,device):
 
         lst = [1,2]
 
+        prob = self.prob
+
         
-        weights = [0.5,0.5] #Set value of probability
+        probs = [prob,1-prob] #Set value of probability
 
-        seed = random.choices(lst,weights,k=1)[0]
+        seed = random.choices(lst,probs,k=1)[0]
 
-        if seed == 1:
+        if seed == 2:
             return torch.randint(self.maxf,self.T, size=size, device=device)
         else:
             return torch.randint(0,self.maxf, size=size, device=device)
@@ -117,7 +121,7 @@ class Skewed_GaussianDiffusionTrainer(nn.Module):
 
     
 class Skewed_GaussianDiffusionTrainer_Spectrum(nn.Module):
-    def __init__(self, model, beta_1, beta_T, T,maxf=100):
+    def __init__(self, model, beta_1, beta_T, T,maxf=100,prob=0.5,lamda=1):
         super().__init__()
 
         self.model = model
@@ -135,17 +139,23 @@ class Skewed_GaussianDiffusionTrainer_Spectrum(nn.Module):
             'sqrt_one_minus_alphas_bar', torch.sqrt(1. - alphas_bar))
         
         self.maxf = maxf
+
+        self.lamda = lamda
+
+        self.prob = prob
         
     def sample(self,size,device):
 
         lst = [1,2]
 
+        prob = self.prob
+
         
-        weights = [0.5,0.5] #Set value of probability
+        probs = [prob,1-prob] #Set value of probability
 
-        seed = random.choices(lst,weights,k=1)[0]
+        seed = random.choices(lst,probs,k=1)[0]
 
-        if seed == 1:
+        if seed == 2:
             return (torch.randint(self.maxf,self.T, size=size, device=device),1)
         else:
             return (torch.randint(1,self.maxf, size=size, device=device),2)
@@ -163,19 +173,19 @@ class Skewed_GaussianDiffusionTrainer_Spectrum(nn.Module):
             extract(self.sqrt_one_minus_alphas_bar, t, x_0.shape) * noise)
         
         loss = F.mse_loss(self.model(x_t, t), noise, reduction='none')
-        if idx ==2:
+        if idx ==1:
             t_p = torch.sub(t,torch.ones_like(t)).to(t.device)
             x_t_prev =  (
             extract(self.sqrt_alphas_bar, t_p, x_0.shape) * x_0 +
             extract(self.sqrt_one_minus_alphas_bar, t_p, x_0.shape) * noise)
             x_t_pred = x_t + (extract(self.sqrt_one_minus_alphas_bar, t_p, x_0.shape) -extract(self.sqrt_one_minus_alphas_bar, t, x_0.shape))*self.model(x_t, t)
             loss_spect = spectmse(x_t_pred,x_t_prev)
-            loss = loss + loss_spect
+            loss = loss + self.lamda*loss_spect
         
         return loss
 
 class Skewed_GaussianDiffusionTrainer_Spectrum_Multistep_Recursive(nn.Module):
-    def __init__(self, model, beta_1, beta_T, T,maxf=100,steps=5):
+    def __init__(self, model, beta_1, beta_T, T,maxf=100,steps=5,prob=0.5,lamda=1):
         super().__init__()
 
         self.model = model
@@ -195,17 +205,23 @@ class Skewed_GaussianDiffusionTrainer_Spectrum_Multistep_Recursive(nn.Module):
         self.maxf = maxf
 
         self.steps = steps 
+
+        self.lamda = lamda
+
+        self.prob = prob
         
-    def sample(self,size,device):
+    def sample(self,size,device,prob):
 
         lst = [1,2]
 
+        prob = self.prob
+
         
-        weights = [0.5,0.5] #Set value of probability
+        probs = [prob,1-prob] #Set value of probability
 
-        seed = random.choices(lst,weights,k=1)[0]
+        seed = random.choices(lst,probs,k=1)[0]
 
-        if seed == 1:
+        if seed == 2:
             return (torch.randint(self.maxf,self.T, size=size, device=device),1)
         else:
             return (torch.randint(1,self.maxf, size=size, device=device),2)
@@ -248,15 +264,15 @@ class Skewed_GaussianDiffusionTrainer_Spectrum_Multistep_Recursive(nn.Module):
             extract(self.sqrt_one_minus_alphas_bar, t, x_0.shape) * noise)
         
         loss = F.mse_loss(self.model(x_t, t), noise, reduction='none')
-        if idx ==2:
+        if idx ==1:
             loss_spect = self.n_step_loss(x_t,t,x_0,noise)
-            loss = loss + loss_spect
+            loss = loss + self.lamda*loss_spect
         
         return loss
     
 
 class Skewed_GaussianDiffusionTrainer_Spectrum_Multistep_Direct(nn.Module):
-    def __init__(self, model, beta_1, beta_T, T,maxf=100,steps=5):
+    def __init__(self, model, beta_1, beta_T, T,maxf=100,steps=5,prob=0.5,lamda=1):
         super().__init__()
 
         self.model = model
@@ -276,17 +292,23 @@ class Skewed_GaussianDiffusionTrainer_Spectrum_Multistep_Direct(nn.Module):
         self.maxf = maxf
 
         self.steps = steps 
+
+        self.lamda = lamda
+
+        self.prob = prob
         
     def sample(self,size,device):
 
         lst = [1,2]
 
+        prob = self.prob
+
         
-        weights = [0.5,0.5] #Set value of probability
+        probs = [prob,1-prob] #Set value of probability
 
-        seed = random.choices(lst,weights,k=1)[0]
+        seed = random.choices(lst,probs,k=1)[0]
 
-        if seed == 1:
+        if seed == 2:
             return (torch.randint(self.maxf,self.T, size=size, device=device),1)
         else:
             return (torch.randint(1,self.maxf, size=size, device=device),2)
@@ -328,9 +350,9 @@ class Skewed_GaussianDiffusionTrainer_Spectrum_Multistep_Direct(nn.Module):
             extract(self.sqrt_one_minus_alphas_bar, t, x_0.shape) * noise)
         
         loss = F.mse_loss(self.model(x_t, t), noise, reduction='none')
-        if idx ==2:
+        if idx ==1:
             loss_spect = self.n_step_loss(x_t,t,x_0,noise)
-            loss = loss + loss_spect
+            loss = loss + self.lamda*loss_spect
         
         return loss
 
@@ -404,9 +426,9 @@ class Skewed_GaussianDiffusionTrainer_Spectrum_Strong(nn.Module):
         lst = [1,2]
 
         
-        weights = [0.5,0.5] #Set value of probability
+        probs = [0.5,0.5] #Set value of probability
 
-        seed = random.choices(lst,weights,k=1)[0]
+        seed = random.choices(lst,probs,k=1)[0]
 
         if seed == 1:
             return (torch.randint(self.maxf,self.T, size=size, device=device),1)
@@ -561,7 +583,7 @@ class Skewed_GaussianDiffusionTrainer_Spectrum_Strong(nn.Module):
             extract(self.sqrt_one_minus_alphas_bar, t, x_0.shape) * noise)
         
         loss = F.mse_loss(self.model(x_t, t), noise, reduction='none')
-        if idx ==2:
+        if idx ==1:
             t_p = torch.sub(t,torch.ones_like(t)).to(t.device)
             x_t_prev =  (
             extract(self.sqrt_alphas_bar, t_p, x_0.shape) * x_0 +
