@@ -1,4 +1,4 @@
-# Spectral Bias Experiments with DDPM
+# Spectral Bias Experiments with Diffusion Models
 
 We base our codebase on the codebase on a pre-existing one given below. The codbase here supports CIFAR10, MNIST but can be modified easily for any standard torchvision datasets that are downloadable. For intrinsically grayscale datasets eg FashionMNIST please refer to the MNIST preprocessing transform in any of the codes. Currently codes are provided for.
 
