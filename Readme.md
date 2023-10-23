@@ -6,7 +6,7 @@ Mitigation methods
 - [x] Reweighting temporal freqeuncy
 - [x] MSE Loss in the frequency domain with reweighting.
 - [x] MSE Loss in the frequency domain with n-step sampling + reweighting
-- [ ] Strong MSE Loss based on the fast sampling trick
+- [x] MSE Loss in the frequency domain with n-step sampling (direct formula) + reweighting
 
 
 Reweighting involves sampling during training from a bernoulli distribution that assigns equal probability to
@@ -14,10 +14,10 @@ $[0,t_{max}]$ and $[t_{max},T]$ where $t_{max}$ is the maximum time possessing h
 
 ![equation](https://github.com/rsn870/spectral_ddpm/blob/main/images/code_a.png)
 
-All mitigation codes will be present in diffusion.py please refer to it for more details. For a new experiment create a new main file after adding a new trainer class in diffusion.py
+Our implemnetation of the spectrum loss borrow directly from https://github.com/autonomousvision/frequency_bias
 
-For a fuller theoretical analysis please refer to [this overleaf link here](https://www.overleaf.com/read/sswxdhmyptwb)
-
+All mitigation codes will be present in diffusion.py please refer to it for more details. 
+For a fuller theoretical analysis please refer to the paper. 
 
 
 ---------------------------------------------------------
