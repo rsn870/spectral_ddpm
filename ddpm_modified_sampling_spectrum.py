@@ -43,7 +43,7 @@ flags.DEFINE_integer('num_workers', 0, help='workers of Dataloader')
 flags.DEFINE_float('ema_decay', 0.9999, help="ema decay rate")
 flags.DEFINE_bool('parallel', False, help='multi gpu training')
 # Logging & Sampling
-flags.DEFINE_string('logdir', '/ssd_scratch/cvit/Sai_niranjan/cifar_mnist_ddpm_skewed_samp_spect', help='log directory')
+flags.DEFINE_string('logdir', './cifar_mnist_ddpm', help='log directory')
 flags.DEFINE_integer('sample_size', 64, "sampling size of images")
 flags.DEFINE_integer('sample_step', 1000, help='frequency of sampling')
 # Evaluation
