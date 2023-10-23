@@ -14,7 +14,7 @@ $[0,t_{max}]$ and $[t_{max},T]$ where $t_{max}$ is the maximum time possessing h
 
 ![equation](https://github.com/rsn870/spectral_ddpm/blob/main/images/code_a.png)
 
-Our implemnetation of the spectrum loss borrow directly from https://github.com/autonomousvision/frequency_bias
+Our implementation of the spectrum loss borrow directly from https://github.com/autonomousvision/frequency_bias
 
 All mitigation codes will be present in diffusion.py please refer to it for more details. 
 For a fuller theoretical analysis please refer to the paper. 
