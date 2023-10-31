@@ -156,9 +156,9 @@ class Skewed_GaussianDiffusionTrainer_Spectrum(nn.Module):
         seed = random.choices(lst,probs,k=1)[0]
 
         if seed == 2:
-            return (torch.randint(self.maxf,self.T, size=size, device=device),1)
+            return (torch.randint(self.maxf,self.T, size=size, device=device),2)
         else:
-            return (torch.randint(1,self.maxf, size=size, device=device),2)
+            return (torch.randint(2,self.maxf, size=size, device=device),1)
 
 
     def forward(self, x_0):
@@ -174,6 +174,7 @@ class Skewed_GaussianDiffusionTrainer_Spectrum(nn.Module):
         
         loss = F.mse_loss(self.model(x_t, t), noise, reduction='none')
         if idx ==1:
+        
             t_p = torch.sub(t,torch.ones_like(t)).to(t.device)
             x_t_prev =  (
             extract(self.sqrt_alphas_bar, t_p, x_0.shape) * x_0 +
@@ -222,9 +223,9 @@ class Skewed_GaussianDiffusionTrainer_Spectrum_Multistep_Recursive(nn.Module):
         seed = random.choices(lst,probs,k=1)[0]
 
         if seed == 2:
-            return (torch.randint(self.maxf,self.T, size=size, device=device),1)
+            return (torch.randint(self.maxf,self.T, size=size, device=device),2)
         else:
-            return (torch.randint(1,self.maxf, size=size, device=device),2)
+            return (torch.randint(self.steps,self.maxf, size=size, device=device),1)
         
     def one_step(self,xt,t):
         t_p = torch.sub(t,torch.ones_like(t)).to(t.device)
@@ -309,9 +310,9 @@ class Skewed_GaussianDiffusionTrainer_Spectrum_Multistep_Direct(nn.Module):
         seed = random.choices(lst,probs,k=1)[0]
 
         if seed == 2:
-            return (torch.randint(self.maxf,self.T, size=size, device=device),1)
+            return (torch.randint(self.maxf,self.T, size=size, device=device),2)
         else:
-            return (torch.randint(1,self.maxf, size=size, device=device),2)
+            return (torch.randint(self.steps,self.maxf, size=size, device=device),1)
         
     def i_step(self,xt,t,i):
         t_p = torch.sub(t,i*torch.ones_like(t)).to(t.device)
